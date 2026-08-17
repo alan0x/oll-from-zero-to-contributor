@@ -31,6 +31,7 @@ evals/
 
 ```text
 packages/core/src/types.ts
+packages/core/src/capabilities.ts
 ```
 
 校验、Normalizer、Reducer：
@@ -65,7 +66,7 @@ packages/web-runtime/src/
 packages/web-runtime/styles.css
 ```
 
-重点模块包括 `layout.ts`、`plot.ts`、学生操作/任务、Scene3D、BrowserLessonSession 和 `teaching-observer.ts`。
+重点模块包括 `layout.ts`、`camera.ts`、`board-view.ts`、`board-targets.ts`、`plot.ts`、`scene3d.ts`、`student-operations.ts`、`student-tasks.ts`、BrowserLessonSession 和 `teaching-observer.ts`。
 
 学生笔迹：
 
@@ -141,14 +142,17 @@ Skill 发现和执行：
 
 ```text
 crates/octos-agent/src/plugins/loader.rs
-crates/octos-agent/src/tools/
+crates/octos-agent/src/plugins/manifest.rs
+crates/octos-agent/src/plugins/tool.rs
 ```
 
 ToolSpec 和模型 Provider：
 
 ```text
-crates/octos-llm/src/types.rs
-crates/octos-llm/src/providers/
+crates/octos-llm/src/provider.rs
+crates/octos-llm/src/gemini.rs
+crates/octos-llm/src/openai.rs
+crates/octos-llm/src/anthropic.rs
 ```
 
 查 Gemini 兼容问题时搜索 `Gemini`、`tool schema`、`exclusiveMinimum`、`sanitize` 和 `function_declarations`。
@@ -160,6 +164,13 @@ crates/octos-cli/src/api/
 ```
 
 重点搜索 `tool_progress`、`files_to_send`、`session files`、`UiNotification` 和 `tool_call_id`。
+
+直接 Skill Action 与选区媒体工作区：
+
+```text
+crates/octos-cli/src/api/ui_protocol_transport.rs  skill.actions.v1 / skill/action/invoke
+crates/octos-agent/src/plugins/    OCTOS_SESSION_WORKSPACE / action binding
+```
 
 ## 4. octos-web
 
@@ -233,3 +244,11 @@ src/api/files.ts
 | 框选后原稿移动 | Ink selection lock |
 | 刷新后变量丢失 | Web Runtime student operation persistence |
 | 后续问题引用错节点 | composer reference + board_context revision |
+| 相连主视觉离得很远 | Web Runtime layout + connection layout |
+| 旁白讲公式时主视觉出画面 | Web Runtime camera/focus + host occlusions |
+| 拖动控件导致 TTS 中断 | octos-web student input ownership + narration controller |
+| 3D 截面只移动平面 | Scene3D section targets/display + intersection renderer |
+| 俯视任务怎么都不完成 | student task `view_direction` 与 `camera_pose` |
+| `skill/action/invoke` 不支持 | Octos/UI capability negotiation `skill.actions.v1` |
+| 问小章鱼找不到选区图片 | session workspace materialization + action binding |
+| 重播后笔迹消失 | learning-workspace Ink run merge/restore |

@@ -16,7 +16,7 @@ Octos 不是 OLL Runtime。它是承载学习产品的通用 Agent 和服务端�
 → 得到最终回复
 ```
 
-learning-coach 是其中一个可调用 Tool Skill。
+learning-coach 是其中一个可调用 Skill。它既可以参加主 Agent 的 tool-call 循环，也可以把有限的 UI 操作声明成 Skill Action，让前端按钮直接调用。
 
 ## 2. ToolSpec
 
@@ -28,7 +28,13 @@ Octos 会把 Skill manifest 中的工具转换成通用 `ToolSpec`，包含：
 
 不同模型 Provider 对工具 Schema 支持不同。Octos LLM 层必须做 Provider 专用适配。例如 Gemini 不支持 `exclusiveMinimum` 等字段时，适配器在发送前创建清洗副本；不能要求每个 Skill 都污染自己的标准 Schema。
 
-## 3. Skill 安装位置
+## 3. Skill Action 为什么单独存在
+
+“解释当前选区”已经由用户点了明确按钮，不需要主模型再猜一次意图。Octos 通过 UI 协议协商 `skill.actions.v1`，接收 `skill/action/invoke`，验证 action 的输入，再按 manifest 的 binding 调用内部工具。
+
+这条路径仍然经过 Skill manifest、输入校验、工作区边界、超时和 ToolResult，只是绕过了不必要的主模型决策。客户端必须在能力协商成功后才显示或启用直接操作；旧后端不支持时要给出明确提示，不能把 “method not supported” 当成选区生成失败。
+
+## 4. Skill 安装位置
 
 开发者可从本地目录安装：
 
@@ -52,7 +58,7 @@ octos skills --profile <profile-id> info learning-coach
 octos skills --profile <profile-id> remove learning-coach
 ```
 
-## 4. 安装时发生什么
+## 5. 安装时发生什么
 
 本地安装会：
 
@@ -65,7 +71,7 @@ octos skills --profile <profile-id> remove learning-coach
 
 如果只在源目录执行 `npm run build`，已安装目录不会自动变化。需要重新安装或使用明确的本地开发链接方式。
 
-## 5. 进程协议
+## 6. 进程协议
 
 Octos 执行：
 
@@ -87,7 +93,7 @@ Skill stdout：
 
 stderr 用于日志和进度。进程退出码、stdout 解析和超时共同决定 ToolResult。
 
-## 6. 环境变量和秘密
+## 7. 环境变量、秘密和会话工作区
 
 Skill 只能接收 manifest `tools[].env` 中允许的变量。learning-coach 需要 Vertex 凭据、Project、Location、模型名、超时和 OLL 工作目录。
 
@@ -100,7 +106,9 @@ Skill 必须遵守：
 - 不把秘密写入 Artifact；
 - 错误信息只保留安全摘要。
 
-## 7. Provider 工具 Schema 适配
+选区图片属于当前会话，不在 Skill 自己的输出目录。Octos 通过 `OCTOS_SESSION_WORKSPACE` 告诉 Skill 可读取的会话根目录；Skill 只接受工作区内的相对路径，解析真实路径后再次检查没有越界，并限制文件类型和大小。`OCTOS_WORK_DIR` 仍用于 Skill 写自己的 Artifact，二者不能混用。
+
+## 8. Provider 工具 Schema 适配
 
 主 Agent 自身调用 Skill 前，Octos 会把所有 ToolSpec 发送给 Gemini。若某个参数 Schema 包含 Provider 不认识的字段，整个模型请求可能在 Agent 还没选择工具前返回 HTTP 400。
 
@@ -113,7 +121,7 @@ Skill 必须遵守：
 
 两层都需要 Provider 兼容，但不能混在一起修。
 
-## 8. 超时、重试和取消
+## 9. 超时、重试和取消
 
 Skill manifest 给出总超时，learning-coach 内部又给每次模型请求设置超时和总预算。
 
@@ -126,7 +134,7 @@ Skill manifest 给出总超时，learning-coach 内部又给每次模型请求�
 
 无条件重试会把 40 秒错误变成 120 秒错误。
 
-## 9. 文件交付
+## 10. 文件交付
 
 Skill 把绝对路径列在 `files_to_send`。Octos 校验并把文件登记到会话工作区，然后向前端发送文件相关事件。
 
@@ -137,7 +145,7 @@ Artifact 内容不应被塞进主模型文字回复：
 - 前端可按文件后缀路由；
 - 部分和最终 Artifact 可被正确替换。
 
-## 10. UI 协议中的工具生命周期
+## 11. UI 协议中的工具生命周期
 
 前端关心：
 
@@ -151,7 +159,7 @@ Artifact 内容不应被塞进主模型文字回复：
 
 learning-coach 生成较慢时，Octos 应把 stderr 的结构化阶段进度桥接到 UI，而不是让界面长时间无反馈。
 
-## 11. 启动开发后端
+## 12. 启动开发后端
 
 Octos 是 Rust workspace。常用检查：
 
@@ -170,7 +178,7 @@ cargo install --path crates/octos-cli --features "api,telegram,discord,whatsapp,
 
 只测试学习链路时可以构建更小的 feature 集，但 `api` 不能省略。
 
-## 12. 后端日志怎样读
+## 13. 后端日志怎样读
 
 按顺序寻找：
 
@@ -186,7 +194,7 @@ cargo install --path crates/octos-cli --features "api,telegram,discord,whatsapp,
 
 如果主模型请求在 tool call 前就 400，应查 Octos Tool Schema adapter；如果 Skill 已启动后其 Vertex 请求 400，应查 learning-coach。
 
-## 13. Octos 不应承担的 OLL 逻辑
+## 14. Octos 不应承担的 OLL 逻辑
 
 不要在 Octos 后端：
 

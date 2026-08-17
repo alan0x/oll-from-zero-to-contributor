@@ -132,12 +132,16 @@ Reducer 必须：
 1. 更新 OLL git dependency 到合并后的提交；
 2. `npm install` 更新锁文件；
 3. `npm run oll:sync` 同步 vendored Schema；
-4. 更新能力计划映射；
+4. 更新本次生成能力映射；
 5. 更新 Provider Schema 投影；
 6. 更新 Prompt 中的可用语义；
 7. 更新生成后 coverage；
 8. 添加 mock 输出和真实 eval case；
 9. `npm run oll:check && npm test`。
+
+还要更新 OLL 导出的 `packages/core/src/capabilities.ts`。这张表只登记当前 Core/Runtime 真正能执行的节点、动作、Binding、控件和任务；learning-coach 从包中导入它，不能手抄一份容易漂移的能力清单。
+
+对模型常见的等价写法，优先判断能否做通用、无歧义的程序转换。例如字段语义本来就是 `y` 的右侧表达式时，可以接受 `y = x^2` 并取右侧；但不能靠枚举“单位圆、弹簧、抛物面”题目修输出。转换后仍必须走同一个完整校验器。
 
 如果 learning-coach 手抄了内容结构，应优先从 OLL Schema 组合/投影，减少漂移。
 
@@ -150,6 +154,8 @@ Reducer 必须：
 5. 更新固定 fixture；
 6. 增加 controller 和产品 E2E；
 7. 验证增量加载和刷新。
+
+涉及学生操作时，再验证播放所有权：学生输入是否错误暂停 TTS，老师动画是否只临时占用同一个变量。涉及相机或布局时，必须用真实浏览器确认正在讲的主视觉处于未被浮层遮挡的画面内。
 
 不要在 octos-web 复制一份 Plot 实现来绕过 OLL Runtime。
 

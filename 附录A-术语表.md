@@ -36,9 +36,13 @@ Skill 生成并通过 `files_to_send` 或进度事件交付的文件。整课是
 
 面向 Runtime 的 OLL 事件形式，包含稳定 ID、sequence、revision 和规范化引用。
 
-## Capability Plan
+## Capability Plan / 本次生成能力范围
 
-learning-coach 根据本轮课程要求确定的 OLL 能力集合。它限制模型本次生成范围，但不取代完整 OLL Schema。
+learning-coach 根据课程设计候选派生的本次生成能力范围。它用于缩小 Provider Schema，但不是 OLL 标准，也不能证明最终课件实际拥有这些能力。
+
+## Executable Capabilities
+
+从最终 Lesson 实际读取出的节点、动作、Binding、学生控件和任务。OLL Core 的 `capabilities.ts` 定义当前版本真正实现的能力表，learning-coach 用它检查和报告结果。
 
 ## Checkpoint
 
@@ -78,7 +82,7 @@ OLL 仓库内的独立浏览器实验室，不依赖 Octos 和 `/learn`，用于
 
 ## Lesson Brief / 课程要求清单
 
-learning-coach 内部在正式生成课件前整理的要求。它不是 OLL 标准。正文统一称“课程要求清单”。
+learning-coach 内部在正式生成课件前由模型提出、再由程序检查结构和映射的课程设计候选。它不是 OLL 标准，也不是绝对正确的用户意图。
 
 ## Node
 
@@ -130,7 +134,7 @@ Semantic Board State 的版本号。后续引用用它检测白板是否已经�
 
 ## Scene3D
 
-OLL 的三维内容类型，表达对象、相机和截面语义，由 Web Runtime 渲染并接收视角操作。
+OLL 的三维内容类型，表达对象、相机、轴对齐截面和真实交集语义，由 Web Runtime 渲染并接收视角操作。
 
 ## Schema
 
@@ -147,6 +151,10 @@ Reducer 得到的白板语义状态：节点、连接、分组、焦点、变量
 ## Skill
 
 可由 Octos 安装和调用的独立工具包，通常包含 manifest、说明和可执行 `main`。
+
+## Skill Action
+
+Skill 在 manifest 中声明的、可以由产品 UI 直接触发的有限操作。前端和 Octos 先协商 `skill.actions.v1`，再用 `skill/action/invoke` 调用；它不需要主模型再次选择工具。
 
 ## Step
 

@@ -25,9 +25,11 @@ examples/unit-circle-sine/ACCEPTANCE.md
 找到：
 
 ```json
-"dsl": "octos.lesson",
-"version": "0.1",
-"profile": "authoring"
+{
+  "dsl": "octos.lesson",
+  "version": "0.1",
+  "profile": "authoring"
+}
 ```
 
 再找到 Lesson 标题和 goals、`theta` 变量、slider control 和 `reach-sine-maximum` 任务。
@@ -117,7 +119,8 @@ arc.end_angle = π/2
 ## 9. 在 Harness 播放
 
 ```bash
-cd /Users/alan0x/Documents/projects/octos-lesson-language
+OCTOS_PROJECTS_DIR=/path/to/your/workspace
+cd "$OCTOS_PROJECTS_DIR/octos-lesson-language"
 npm run harness:dev
 ```
 
@@ -161,7 +164,7 @@ npm run harness:dev
 
 在 `/learn` 使用自然问题：
 
-> 请结合单位圆和 y=sin(x) 的函数图像，解释角度旋转如何变成周期波动。
+> 请结合单位圆和 y=sin(x) 的函数图像，解释角度旋转如何变成周期波动。最后出一道让我拖动圆周点找到正弦最大值的小练习。
 
 不要告诉模型内部字段名。确认 learning-coach 自己规划出 Geometry、Plot、共享变量、动画和任务。
 
